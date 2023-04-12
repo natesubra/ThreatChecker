@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Runtime.InteropServices;
 
-namespace ThreatCheck
+namespace ThreatChecker
 {
     class NativeMethods
     {

@@ -1,9 +1,9 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.30428.66
+# Visual Studio Version 17
+VisualStudioVersion = 17.5.33530.505
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ThreatCheck", "ThreatCheck\ThreatCheck.csproj", "{3EC9B9A8-0AFE-44A7-8B95-7F60E750F042}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ThreatChecker", "ThreatChecker\ThreatChecker.csproj", "{3EC9B9A8-0AFE-44A7-8B95-7F60E750F042}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

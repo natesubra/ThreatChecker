@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace ThreatCheck
+namespace ThreatChecker
 {
     class CustomConsole
     {

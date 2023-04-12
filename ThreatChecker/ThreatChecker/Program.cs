@@ -1,18 +1,19 @@
 ﻿using CommandLine;
-
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Net;
 
-namespace ThreatCheck
+namespace ThreatChecker
 {
     class Program
     {
         public class Options
         {
-            [Option('e', "engine", Default = "Defender", Required = false, HelpText = "Scanning engine. Options: Defender, AMSI")]
+            [Option('d', "debug", Required = false, HelpText = "Enable debug output")]
+            public static bool Debug { get; set; }
+
+            [Option('e', "engine", Default = "DClass", Required = false, HelpText = "Scanning engine. Options: DClass, AMSI")]
             public string Engine { get; set; }
 
             [Option('f', "file", Required = false, HelpText = "Analyze a file on disk")]
@@ -24,26 +25,18 @@ namespace ThreatCheck
 
         public enum ScanningEngine
         {
-            Defender,
+            DClass,
             Amsi
         }
 
         static void Main(string[] args)
         {
-            var watch = Stopwatch.StartNew();
-
             Parser.Default.ParseArguments<Options>(args)
                 .WithParsed(RunOptions)
                 .WithNotParsed(HandleParseError);
-
-            watch.Stop();
-
-#if DEBUG
-            CustomConsole.WriteDebug($"Run time: {Math.Round(watch.Elapsed.TotalSeconds, 2)}s");
-#endif
         }
 
-        static void RunOptions(Options opts)
+        public static void RunOptions(Options opts)
         {
             var file = new byte[] { };
             var engine = (ScanningEngine)Enum.Parse(typeof(ScanningEngine), opts.Engine, true);
@@ -59,7 +52,7 @@ namespace ThreatCheck
                     CustomConsole.WriteError("Could not connect to URL");
                     return;
                 }
-                
+
             }
             else if (!string.IsNullOrEmpty(opts.InFile))
             {
@@ -81,7 +74,7 @@ namespace ThreatCheck
 
             switch (engine)
             {
-                case ScanningEngine.Defender:
+                case ScanningEngine.DClass:
                     ScanWithDefender(file);
                     break;
                 case ScanningEngine.Amsi:
@@ -110,19 +103,19 @@ namespace ThreatCheck
 
         static void ScanWithDefender(byte[] file)
         {
-            var defender = new Defender(file);
+            var defender = new DClass(file);
             defender.AnalyzeFile();
         }
 
         static void ScanWithAmsi(byte[] file)
         {
-            using (var amsi = new AmsiInstance())
+            using (var amsi = new AIClass())
             {
-                if (!amsi.RealTimeProtectionEnabled)
-                {
-                    CustomConsole.WriteError("Ensure real-time protection is enabled");
-                    return;
-                }
+                //if (!amsi.RealTimeProtectionEnabled)
+                //{
+                //    CustomConsole.WriteError("Ensure real-time protection is enabled");
+                //    return;
+                //}
 
                 amsi.AnalyzeBytes(file);
             }
