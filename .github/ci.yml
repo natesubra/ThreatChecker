@@ -1,0 +1,57 @@
+name: Build
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Setup MSBuild
+        uses: microsoft/setup-msbuild@v1
+
+      - name: Navigate to Workspace
+        run: cd $GITHUB_WORKSPACE
+
+      - name: build prep
+        shell: pwsh
+        run: |
+          # AV Exclusion
+          Add-MpPreference -ExclusionPath $PWD -ErrorAction Continue -Verbose
+          Set-Location -Path ThreatChecker
+          msbuild -target:clean
+          msbuild -restore
+          msbuild -m -"Property:Configuration=Release,Platform=Any CPU"
+
+      - name: build
+        run: |
+          msbuild .\buildall.proj /m /verbosity:minimal
+
+      - name: pack
+        id: pack
+        shell: pwsh
+        run: |
+          $tag=(git log -n 1 --pretty=format:'%h')
+          echo "::set-output name=LATEST_TAG::${tag}"
+          $RELEASE_NAME="threatchecker-${tag}"
+          7z a -y -mx9 -mhe=on "${PWD}\${RELEASE_NAME}-x64.7z" "$PWD\ThreatChecker\bin\Release\ThreatChecker.exe"
+
+      - name: Publish
+        uses: softprops/action-gh-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          body: |
+            Generated from commit: ${{ steps.prep.outputs.LATEST_TAG }}
+          files: |
+            *.7z
+          tag_name: ${{ steps.pack.outputs.LATEST_TAG }}
+          draft: false
+          prerelease: false
