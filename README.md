@@ -1,10 +1,24 @@
-## ThreatCheck
-Modified version of [Matterpreter's](https://twitter.com/matterpreter) [DefenderCheck](https://github.com/matterpreter/DefenderCheck).
+# ThreatCheck(er)
+
+A updated/modified version of ThreatCheck/DefenderCheck
+
+Changes:
+
+- Refactored output: Now attempts to identify the range of suspect bytes
+- Re-enabled debug output, for when 
+- Refactored some things that were getting flagged by AV (this probably won't last long, class names IIRC)
+- Added GitHub CI/CD Release
+- Updated dependencies etc
+## Credits
+
+- Modified version of [RastaMouse's](https://rastamouse.me/) [ThreatCheck](https://github.com/rasta-mouse/ThreatCheck)
+- Which in turn is a modified version of [Matterpreter's](https://twitter.com/matterpreter) [DefenderCheck](https://github.com/matterpreter/DefenderCheck).
 
 Takes a binary as input (either from a file on disk or a URL), splits it until it pinpoints that exact bytes that the target engine will flag on and prints them to the screen. This can be helpful when trying to identify the specific bad pieces of code in your tool/payload.
 
 ```text
-C:\>ThreatCheck.exe --help
+C:\>ThreatChecker.exe --help
+  -d, --debug     Enables debug output
   -e, --engine    (Default: Defender) Scanning engine. Options: Defender, AMSI
   -f, --file      Analyze a file on disk
   -u, --url       Analyze a file from a URL
@@ -12,26 +26,63 @@ C:\>ThreatCheck.exe --help
   --version       Display version information.
 ```
 
-### Example
+## Example
+
 ```text
-C:\Users\Rasta>ThreatCheck.exe -f Downloads\Grunt.bin -e AMSI
-[+] Target file size: 31744 bytes
+C:\Users\temp\Desktop\TC>ThreatChecker.exe -f c:\av-exclusions\x64.exe
+[+] Target file size: 339456 bytes
 [+] Analyzing...
-[!] Identified end of bad bytes at offset 0x6D7A
-00000000   65 00 22 00 3A 00 22 00  7B 00 32 00 7D 00 22 00   e·"·:·"·{·2·}·"·
-00000010   2C 00 22 00 74 00 6F 00  6B 00 65 00 6E 00 22 00   ,·"·t·o·k·e·n·"·
-00000020   3A 00 7B 00 33 00 7D 00  7D 00 7D 00 00 43 7B 00   :·{·3·}·}·}··C{·
-00000030   7B 00 22 00 73 00 74 00  61 00 74 00 75 00 73 00   {·"·s·t·a·t·u·s·
-00000040   22 00 3A 00 22 00 7B 00  30 00 7D 00 22 00 2C 00   "·:·"·{·0·}·"·,·
-00000050   22 00 6F 00 75 00 74 00  70 00 75 00 74 00 22 00   "·o·u·t·p·u·t·"·
-00000060   3A 00 22 00 7B 00 31 00  7D 00 22 00 7D 00 7D 00   :·"·{·1·}·"·}·}·
-00000070   00 80 B3 7B 00 7B 00 22  00 47 00 55 00 49 00 44   ·?³{·{·"·G·U·I·D
-00000080   00 22 00 3A 00 22 00 7B  00 30 00 7D 00 22 00 2C   ·"·:·"·{·0·}·"·,
-00000090   00 22 00 54 00 79 00 70  00 65 00 22 00 3A 00 7B   ·"·T·y·p·e·"·:·{
-000000A0   00 31 00 7D 00 2C 00 22  00 4D 00 65 00 74 00 61   ·1·}·,·"·M·e·t·a
-000000B0   00 22 00 3A 00 22 00 7B  00 32 00 7D 00 22 00 2C   ·"·:·"·{·2·}·"·,
-000000C0   00 22 00 49 00 56 00 22  00 3A 00 22 00 7B 00 33   ·"·I·V·"·:·"·{·3
-000000D0   00 7D 00 22 00 2C 00 22  00 45 00 6E 00 63 00 72   ·}·"·,·"·E·n·c·r
-000000E0   00 79 00 70 00 74 00 65  00 64 00 4D 00 65 00 73   ·y·p·t·e·d·M·e·s
-000000F0   00 73 00 61 00 67 00 65  00 22 00 3A 00 22 00 7B   ·s·a·g·e·"·:·"·{
+[!] Identified end of matching bytes at offset 0x00000C1D
+[!] Last known good offset: 0x00000C1B
+[!] Printing suspect bytes:
+
+[+]
+Byte Count: 2
+offset range:
+0x00000C1B
+0x00000C1D
+
+00000000 7F E9                                           ..
 ```
+
+## Configuring Defender/Workflow
+
+I recommend running the following PowerShell commands (as an Administrator) to prep your testing device
+
+```PowerShell
+# Required for AMSI to work properly
+Set-MpPreference -DisableRealtimeMonitoring $false
+Set-MpPreference -DisableScriptScanning $false
+# Disable automatic uploads/submissions
+Set-MpPreference -MAPSReporting Disabled
+Set-MpPreference -SubmitSamplesConsent NeverSend
+# Set default actions to NoAction allows stuff to be flagged without defender killing the calling process and without quarantining the file
+Set-MpPreference -LowThreatDefaultAction NoAction
+Set-MpPreference -ModerateThreatDefaultAction NoAction
+Set-MpPreference -HighThreatDefaultAction NoAction
+Set-MpPreference -SevereThreatDefaultAction NoAction
+Set-MpPreference -UnknownThreatDefaultAction Noaction
+# Newer versions of mpcmdrun allow for scanning of excluded items, drop your things here to facilitate more rapid testing
+$dir = New-Item -Path C:\ -Name "av-exclusions" -Force -Verbose
+Set-MpPreference -ExclusionPath $dir.FullName
+```
+
+1. Copy artifacts to test to `C:\av-exclusions`
+2. Run ThreatChecker against said artifacts: `ThreatChecker.exe 
+3. ???
+4. Test again with ThreatChecker
+
+## Compiling your own
+
+Grab the latest visual studio community or visual studio build kit
+
+1. Open a visual studio terminal prompt
+2. Clone the project `git clone https://github.com/natesubra/ThreatChecker`
+3. `cd ThreatChecker\ThreatChecker`
+4. run msbuild:
+
+   ```shell
+    msbuild -target:clean
+    msbuild -restore
+    msbuild -m -"Property:Configuration=Release,Platform=Any CPU"
+   ```
