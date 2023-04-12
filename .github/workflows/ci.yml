@@ -41,7 +41,8 @@ jobs:
           $tag=(git log -n 1 --pretty=format:'%h')
           echo "::set-output name=LATEST_TAG::${tag}"
           $RELEASE_NAME="threatchecker-${tag}"
-          7z a -y -mx9 -mhe=on "${PWD}\${RELEASE_NAME}-x64.7z" "$PWD\ThreatChecker\bin\Release\ThreatChecker.exe"
+          $EXEPath = (Get-ChildItem -Recurse -Filter 'ThreatChecker.exe').Where({ $_.FullName -match 'bin\\Release' }).FullName
+          7z a -y -mx9 -mhe=on "${PWD}\${RELEASE_NAME}-x64.7z" "$EXEPath"
 
       - name: Publish
         uses: softprops/action-gh-release@v1
