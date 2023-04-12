@@ -46,11 +46,9 @@ jobs:
 
       - name: Publish
         uses: softprops/action-gh-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           body: |
-            Generated from commit: ${{ steps.prep.outputs.LATEST_TAG }}
+            Generated from commit: ${{ steps.pack.outputs.LATEST_TAG }}
           files: |
             *.7z
           tag_name: ${{ steps.pack.outputs.LATEST_TAG }}
