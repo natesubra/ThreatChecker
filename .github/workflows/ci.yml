@@ -29,7 +29,7 @@ jobs:
           # AV Exclusion
           Add-MpPreference -ExclusionPath $PWD -ErrorAction Continue -Verbose
           Set-Location -Path ThreatChecker
-          nuget restore MyProject.sln
+          nuget restore ThreatChecker.sln
           msbuild -target:clean -"Property:Configuration=Release,Platform=Any CPU"
           msbuild -restore -"Property:Configuration=Release,Platform=Any CPU"
           msbuild -m -"Property:Configuration=Release,Platform=Any CPU"
