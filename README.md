@@ -1,20 +1,28 @@
 # ThreatCheck(er)
 
-A updated/modified version of ThreatCheck/DefenderCheck
+A updated/modified version of ThreatCheck/DefenderCheck. Full credit to [Matterpreter](https://github.com/matterpreter/DefenderCheck)/[Rastamouse](https://github.com/rasta-mouse/ThreatCheck) for the initial implementation(s) and ideas.
+
+---
+
+Takes a binary as input (either from a file on disk or a URL), splits it until it pinpoints that exact bytes that the target engine will flag on and prints them to the screen. This can be helpful when trying to identify the specific bad pieces of code in your tool/payload.
 
 Changes:
 
-- Refactored output: Now attempts to identify the range of suspect bytes
-- Re-enabled debug output, for when 
-- Refactored some things that were getting flagged by AV (this probably won't last long, class names IIRC)
+- Refactored output: Now attempts to identify and print the range of suspect bytes
+- New HexDump function
 - Added GitHub CI/CD Release
-- Updated dependencies etc
-## Credits
+- Added an arg to enable debug output, for when you want to watch text scroll fast
+- Refactored some things that were getting flagged by AV in the OG ThreatCheck
+- Dependencies:
+  - added new deps required for hexdump
+  - added [Costura.Fodya] to allow the exe to be self contained (embedded assemblies)
+  - updated deps to latest stable
 
-- Modified version of [RastaMouse's](https://rastamouse.me/) [ThreatCheck](https://github.com/rasta-mouse/ThreatCheck)
-- Which in turn is a modified version of [Matterpreter's](https://twitter.com/matterpreter) [DefenderCheck](https://github.com/matterpreter/DefenderCheck).
+Todo:
 
-Takes a binary as input (either from a file on disk or a URL), splits it until it pinpoints that exact bytes that the target engine will flag on and prints them to the screen. This can be helpful when trying to identify the specific bad pieces of code in your tool/payload.
+- Fix the debug display showing the full byte range AROUND the suspect bytes
+- Implement additional logic for corner cases
+- ??? (Pull requests accepted)
 
 ```text
 C:\>ThreatChecker.exe --help
