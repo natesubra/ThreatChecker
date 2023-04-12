@@ -17,22 +17,22 @@ jobs:
       - name: Setup MSBuild
         uses: microsoft/setup-msbuild@v1
 
+      - name: Setup Nuget
+        uses: Nuget/setup-nuget@v1
+
       - name: Navigate to Workspace
         run: cd $GITHUB_WORKSPACE
 
-      - name: build prep
+      - name: build
         shell: pwsh
         run: |
           # AV Exclusion
           Add-MpPreference -ExclusionPath $PWD -ErrorAction Continue -Verbose
           Set-Location -Path ThreatChecker
-          msbuild -target:clean
-          msbuild -restore
+          nuget restore MyProject.sln
+          msbuild -target:clean -"Property:Configuration=Release,Platform=Any CPU"
+          msbuild -restore -"Property:Configuration=Release,Platform=Any CPU"
           msbuild -m -"Property:Configuration=Release,Platform=Any CPU"
-
-      - name: build
-        run: |
-          msbuild .\buildall.proj /m /verbosity:minimal
 
       - name: pack
         id: pack
