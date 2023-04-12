@@ -5,6 +5,9 @@ on:
     branches:
       - main
 
+permissions:
+  contents: write
+
 jobs:
   build:
     runs-on: windows-latest
@@ -43,6 +46,7 @@ jobs:
           $RELEASE_NAME="threatchecker-${tag}"
           $EXEPath = (Get-ChildItem -Recurse -Filter 'ThreatChecker.exe').Where({ $_.FullName -match 'bin\\Release' }).FullName
           7z a -y -mx9 -mhe=on "${PWD}\${RELEASE_NAME}-x64.7z" "$EXEPath"
+          cd $GITHUB_WORKSPACE
 
       - name: Publish
         uses: softprops/action-gh-release@v1
