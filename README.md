@@ -71,7 +71,7 @@ Set-MpPreference -HighThreatDefaultAction NoAction
 Set-MpPreference -SevereThreatDefaultAction NoAction
 Set-MpPreference -UnknownThreatDefaultAction Noaction
 # Newer versions of mpcmdrun allow for scanning of excluded items, drop your things here to facilitate more rapid testing
-$dir = New-Item -Path C:\ -Name "av-exclusions" -Force -Verbose
+$dir = New-Item -Path C:\ -Name "av-exclusions" -Force -Verbose -Type Directory
 Set-MpPreference -ExclusionPath $dir.FullName
 ```
 
